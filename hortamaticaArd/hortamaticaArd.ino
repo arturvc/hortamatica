@@ -154,7 +154,11 @@ void loop()
   Serial.println(valorLuminosidade);
 
   //--------------------------------------------
-  //  Envio dos dados pel Software Serial para o ESP8266.
+  //  Envio dos dados pelo Software Serial para o ESP8266.
+  //  As letras que antecedem as variáveis são delimitadores
+  //  para facilitar a aquisição dos dados no código do ESP8266.
+  //  As dez variáveis são enviadas como uma "string" única de dados,
+  //  as quais serão separadas em respectivas variáveis no código do ESP8266.
   ARD_ESP.print('A');
   ARD_ESP.print(valorUmidade1A);
   ARD_ESP.print('B');
@@ -180,7 +184,7 @@ void loop()
 
   //--------------------------------------------
 
-  //  Atualiza o estado dos relés, de acordo com os valores definidos anteriormente na condiçaõ lógica.
+  //  Atualiza o estado dos relés, de acordo com os valores definidos anteriormente na condição lógica.
   digitalWrite(releSolenoide1, rele1Estado);
   digitalWrite(releSolenoide2, rele2Estado);
 
