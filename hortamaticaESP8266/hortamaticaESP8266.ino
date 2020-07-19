@@ -51,14 +51,14 @@ SoftwareSerial ARD_ESP(4, 5); //SRX=Dpin-D2; STX-DPin-D1
 
 /************************* Ponto de acesso de WiFi *********************************/
 
-#define WLAN_SSID       "nome da rede"    //  Nome da rede de WiFi.
+#define WLAN_SSID       "Nome da rede WiFi"    //  Nome da rede de WiFi.
 #define WLAN_PASS       "senha"           //  Senha da rede de WiFi.
 
 /************************* Setup de acesso do Adafruit.io *********************************/
 
 #define AIO_SERVER      "io.adafruit.com" //  Endereço do servidor de MQTT.
 #define AIO_SERVERPORT  1883              //  Número da porta do servidor, usar 8883 para SSL.
-#define AIO_USERNAME    "usuario"         //  Nome de usuário no sistema da Adafruit.io.
+#define AIO_USERNAME    "nomeDeUsuario"         //  Nome de usuário no sistema da Adafruit.io.
 #define AIO_KEY         "chave"           //  Chave de acesso no sistema da Adafruit.io.
 //  Observação: AIO se refere a Adafruit.io.
 
@@ -79,11 +79,8 @@ Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO
 
 Adafruit_MQTT_Publish pubUmidade1A = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/umidade1A");
 Adafruit_MQTT_Publish pubUmidade2A = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/umidade2A");
-Adafruit_MQTT_Publish pubUmidade1D = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/umidade1D");
-Adafruit_MQTT_Publish pubUmidade2D = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/umidade2D");
 
 Adafruit_MQTT_Publish pubRele1 = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/rele1");
-Adafruit_MQTT_Publish pubRele2 = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/rele2");
 
 Adafruit_MQTT_Publish pubTemperatura = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/temperatura");
 Adafruit_MQTT_Publish pubPressao = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressao");
@@ -102,10 +99,7 @@ Adafruit_MQTT_Publish pubLuminosidade = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAM
 
 int valorUmidade1A;     //  Variável do valor do Sensor de Umidade 1 (de 0 a 1023).
 int valorUmidade2A;     //  Variável do valor do Sensor de Umidade 2 (de 0 a 1023).
-int valorUmidade1D;     //  Variável do valor do Sensor de Umidade 1 (de 0 a 1).
-int valorUmidade2D;     //  Variável do valor do Sensor de Umidade 2 (de 0 a 1).
 int rele1Estado;        //  Variável do estado lógico do Relé 1 (1 = desligado, 0 = ligado).
-int rele2Estado;        //  Variável do estado lógico do Relé 2 (1 = desligado, 0 = ligado).
 float bmpTemperatura;   //  Variável da temperatura, em graus Celcius.
 int bmpPressao;         //  Variável da pressão, em Pascals (Pa).
 float bmpAltitude;      //  Variável da altitude, em metros.
@@ -216,37 +210,27 @@ void loop()
     indiceFinal = valores.indexOf('C');
     valorUmidade2A = valores.substring(indiceInicial, indiceFinal).toInt();
 
+
     indiceInicial = valores.indexOf('C') + 1;
     indiceFinal = valores.indexOf('D');
-    valorUmidade1D = valores.substring(indiceInicial, indiceFinal).toInt();
+    rele1Estado = valores.substring(indiceInicial, indiceFinal).toInt();
+
 
     indiceInicial = valores.indexOf('D') + 1;
     indiceFinal = valores.indexOf('E');
-    valorUmidade2D = valores.substring(indiceInicial, indiceFinal).toInt();
-
-    indiceInicial = valores.indexOf('E') + 1;
-    indiceFinal = valores.indexOf('F');
-    rele1Estado = valores.substring(indiceInicial, indiceFinal).toInt();
-
-    indiceInicial = valores.indexOf('F') + 1;
-    indiceFinal = valores.indexOf('G');
-    rele2Estado = valores.substring(indiceInicial, indiceFinal).toInt();
-
-    indiceInicial = valores.indexOf('G') + 1;
-    indiceFinal = valores.indexOf('H');
     bmpTemperatura = valores.substring(indiceInicial, indiceFinal).toFloat();
     // De modo semelhante, o "toFloat() no final da expressão converte a string em número decimal.
 
-    indiceInicial = valores.indexOf('H') + 1;
-    indiceFinal = valores.indexOf('I');
+    indiceInicial = valores.indexOf('E') + 1;
+    indiceFinal = valores.indexOf('F');
     bmpPressao = valores.substring(indiceInicial, indiceFinal).toInt();
 
-    indiceInicial = valores.indexOf('I') + 1;
-    indiceFinal = valores.indexOf('J');
+    indiceInicial = valores.indexOf('F') + 1;
+    indiceFinal = valores.indexOf('G');
     bmpAltitude = valores.substring(indiceInicial, indiceFinal).toFloat();
 
-    indiceInicial = valores.indexOf('J') + 1;
-    indiceFinal = valores.indexOf('K');
+    indiceInicial = valores.indexOf('G') + 1;
+    indiceFinal = valores.indexOf('H');
     valorLuminosidade = valores.substring(indiceInicial, indiceFinal).toFloat();
 
 
@@ -256,14 +240,8 @@ void loop()
     Serial.println(valorUmidade1A);
     Serial.print("valorUmidade2A: ");
     Serial.println(valorUmidade2A);
-    Serial.print("valorUmidade1D: ");
-    Serial.println(valorUmidade1D);
-    Serial.print("valorUmidade2D: ");
-    Serial.println(valorUmidade2D);
     Serial.print("rele1Estado: ");
     Serial.println(rele1Estado);
-    Serial.print("rele2Estado: ");
-    Serial.println(rele2Estado);
     Serial.print("Temperatura: ");
     Serial.println(bmpTemperatura);
     Serial.print("Pressao PA: ");
@@ -306,41 +284,11 @@ void loop()
       Serial.println(F("Ok, enviado!"));
       piscarLed(3);
     }
-    // *************************************** Umidade 1 Digital
-    Serial.print(F("\nSending valorUmidade1D "));
-    Serial.print(valorUmidade1D);
-    Serial.print("... ");
-    if (! pubUmidade1D.publish(valorUmidade1D)) {
-      Serial.println(F("Erro no envio.."));
-    } else {
-      Serial.println(F("Ok, enviado!"));
-      piscarLed(3);
-    }
-    // *************************************** Umidade 2 Digital
-    Serial.print(F("\nSending valorUmidade2D "));
-    Serial.print(valorUmidade2D);
-    Serial.print("... ");
-    if (! pubUmidade2D.publish(valorUmidade2D)) {
-      Serial.println(F("Erro no envio.."));
-    } else {
-      Serial.println(F("Ok, enviado!"));
-      piscarLed(3);
-    }
     // *************************************** Relé 1
     Serial.print(F("\nSending rele1Estado "));
     Serial.print(rele1Estado);
     Serial.print("... ");
     if (! pubRele1.publish(rele1Estado)) {
-      Serial.println(F("Erro no envio.."));
-    } else {
-      Serial.println(F("Ok, enviado!"));
-      piscarLed(3);
-    }
-    // *************************************** Relé 2
-    Serial.print(F("\nSending rele1Estado "));
-    Serial.print(rele2Estado);
-    Serial.print("... ");
-    if (! pubRele2.publish(rele2Estado)) {
       Serial.println(F("Erro no envio.."));
     } else {
       Serial.println(F("Ok, enviado!"));
@@ -403,9 +351,9 @@ void loop()
 
 void piscarLed(int piscadas) {
   for (int i = 0; i < piscadas; i++) {
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(100);
     digitalWrite(LED_BUILTIN, HIGH);
+    delay(100);
+    digitalWrite(LED_BUILTIN, LOW);
     delay(100);
   }
   delay(50);
